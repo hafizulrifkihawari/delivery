@@ -2,6 +2,7 @@ package app
 
 import (
 	"delivery/app/config"
+	"delivery/migration"
 	"fmt"
 	"log"
 	"os"
@@ -12,7 +13,8 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
-	"gorm.io/driver/mysql"
+	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )
@@ -57,18 +59,18 @@ func initConfig() {
 		dbUser     string = os.Getenv("DB_USER")
 		dbPassword string = os.Getenv("DB_PASSWORD")
 		dbPort     string = os.Getenv("DB_PORT")
-		dbNname    string = os.Getenv("DB_NAME")
+		dbName     string = os.Getenv("DB_NAME")
 		err        error
 	)
 
 	// setup connection DB
-	conString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True", dbUser, dbPassword, dbHost, dbPort, dbNname)
-	config.DB, err = sql.Open("mysql", conString)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable ", dbHost, dbUser, dbPassword, dbName, dbPort)
+	config.DB, err = sql.Open("postgres", dsn)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	config.DBORM, err = gorm.Open(mysql.New(mysql.Config{
+	config.DBORM, err = gorm.Open(postgres.New(postgres.Config{
 		Conn: config.DB,
 	}), &gorm.Config{
 		SkipDefaultTransaction: true,
@@ -81,6 +83,7 @@ func initConfig() {
 	}
 
 	allowCors()
+	migration.InitMigration()
 }
 
 func initEnv() {
