@@ -5,11 +5,15 @@ import (
 	"delivery/controllers"
 )
 
-type controllerRoutes struct{}
+type controllerRoutes struct {
+	restaurantController *controllers.RestaurantController
+}
 
 // RegisterRoutes is used to register url routes API
 func initControllers() *controllerRoutes {
-	return &controllerRoutes{}
+	return &controllerRoutes{
+		restaurantController: controllers.InitRestaurantController(nil),
+	}
 }
 func registerRoutes() {
 	var (
@@ -20,8 +24,9 @@ func registerRoutes() {
 }
 
 func deliveryRouter(c *controllerRoutes) {
-	authNoToken := router.Use(gateway.ErrorHandler)
+	auth := router.Use(gateway.ErrorHandler)
 	{
-		authNoToken.GET("health_check", controllers.HealthCheck)
+		auth.GET("health-check", controllers.HealthCheck)
+		auth.GET("restaurant", c.restaurantController.ListRestaurant)
 	}
 }
