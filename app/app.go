@@ -1,0 +1,89 @@
+package app
+
+import (
+	"delivery/app/config"
+	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+
+	"database/sql"
+
+	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
+)
+
+var (
+	router *gin.Engine
+)
+
+func init() {
+	router = gin.Default()
+}
+
+// StartApp is used to Start the Application
+func StartApp() {
+	setupConfig()
+	initEnv()
+	registerRoutes()
+
+	if err := router.Run(fmt.Sprintf(":%s", os.Getenv("PORT"))); err != nil {
+		panic(err)
+	}
+}
+
+// setupConfig is used to load environment variable
+func setupConfig() {
+	dir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	environmentPath := filepath.Join(dir, ".env")
+	envVariable := godotenv.Load(environmentPath)
+	if envVariable != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	initConfig()
+}
+
+func initConfig() {
+	var (
+		dbHost     string = os.Getenv("DB_HOST")
+		dbUser     string = os.Getenv("DB_USER")
+		dbPassword string = os.Getenv("DB_PASSWORD")
+		dbPort     string = os.Getenv("DB_PORT")
+		dbNname    string = os.Getenv("DB_NAME")
+		err        error
+	)
+
+	// setup connection DB
+	conString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True", dbUser, dbPassword, dbHost, dbPort, dbNname)
+	config.DB, err = sql.Open("mysql", conString)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	config.DBORM, err = gorm.Open(mysql.New(mysql.Config{
+		Conn: config.DB,
+	}), &gorm.Config{
+		SkipDefaultTransaction: true,
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true,
+		},
+	})
+	if err != nil {
+		panic(err.Error())
+	}
+
+	allowCors()
+}
+
+func initEnv() {
+}
+
+//endregion functions
