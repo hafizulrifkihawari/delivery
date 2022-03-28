@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+	"delivery/app/config"
 	"delivery/domains/entities"
 	"delivery/domains/models"
 	"delivery/utils"
@@ -19,9 +20,16 @@ type IRestaurantRepository interface {
 	FilterByDatetime(filterArgs *models.FilterDate) ([]*entities.RestaurantOpeningHour, error)
 	FilterByNumDishesAndPrice(filterArgs *models.FilterDish) ([]*entities.Restaurant, error)
 	FilterByTextSearch(filterArgs *models.FilterText) ([]*entities.RestaurantSearch, error)
+	GetMenuByID(id uint) (*entities.Menu, error)
+	CheckRestaurantByOpeningHour(filterArgs *models.FilterDate) (*entities.RestaurantOpeningHour, error)
+	UpdateRestaurantBalance(restaurantID uint, cashBalance float64) error
 }
 
 func InitRestaurantRepository(connORM *gorm.DB, connDB *sql.DB) *RestaurantRepository {
+	if utils.IsNil(connORM) {
+		connORM = config.DBORM
+	}
+
 	return &RestaurantRepository{
 		connORM: connORM,
 		connDB:  connDB,
@@ -86,4 +94,37 @@ func (repo *RestaurantRepository) FilterByTextSearch(filterArgs *models.FilterTe
 		return nil, err
 	}
 	return result, nil
+}
+
+func (repo *RestaurantRepository) GetMenuByID(id uint) (*entities.Menu, error) {
+	var result *entities.Menu
+	err := repo.connORM.Joins("Restaurant").First(&result, id).Error
+	if err != nil {
+		go utils.PrintLog(err)
+		return nil, err
+	}
+	return result, nil
+}
+
+func (repo *RestaurantRepository) CheckRestaurantByOpeningHour(filterArgs *models.FilterDate) (*entities.RestaurantOpeningHour, error) {
+	var result *entities.RestaurantOpeningHour
+	err := repo.connORM.Where(
+		"restaurant_id = ? AND day = ? AND ? BETWEEN open_at AND close_at",
+		filterArgs.RestaurantID, filterArgs.Day, filterArgs.Datetime,
+	).First(&result).Error
+
+	if err != nil {
+		go utils.PrintLog(err)
+		return nil, err
+	}
+	return result, nil
+}
+
+func (repo *RestaurantRepository) UpdateRestaurantBalance(restaurantID uint, cashBalance float64) error {
+	err := repo.connORM.Model(&entities.Restaurant{}).Where("id = ?", restaurantID).Update("cash_balance", cashBalance).Error
+	if err != nil {
+		go utils.PrintLog(err)
+		return err
+	}
+	return nil
 }

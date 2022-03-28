@@ -25,7 +25,8 @@ type Menu struct {
 }
 
 type RestaurantSearch struct {
-	ID             uint   `gorm:"primary_key" json:"id"`
+	ID             uint   `json:"id"`
+	RestaurantID   uint   `json:"restaurant_id"`
 	RestaurantName string `json:"restaurant_name"`
 	DishName       string `json:"dish_name"`
 	SearchText     string `json:"search_text"`
