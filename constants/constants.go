@@ -1,5 +1,7 @@
 package constants
 
+import "time"
+
 const (
 	// time format reference
 	MilitaryTime = "15:04:05"
@@ -14,8 +16,17 @@ const (
 	AlphanumericSpace = "[^a-zA-Z0-9 ]+"
 )
 
+const (
+	ErrorUserNotFound     = "User not found"
+	ErrorMenuNotFound     = "Menu not found"
+	ErrorRestaurantClosed = "Restaurant currently closed"
+	ErrorInsufficientFund = "Insufficient Fund"
+)
+
 var (
-	DayMapping = map[int]string{
+	TimeNow     = time.Now().UTC()
+	TimeNowUnix = TimeNow.Unix()
+	DayMapping  = map[int]string{
 		0: "Sun",
 		1: "Mon",
 		2: "Tues",

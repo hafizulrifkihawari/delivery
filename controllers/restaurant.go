@@ -15,7 +15,7 @@ type RestaurantController struct {
 
 func InitRestaurantController(restaurantLogic logics.IRestaurantService) *RestaurantController {
 	if utils.IsNil(restaurantLogic) {
-		restaurantLogic = logics.InitRestaurantService(nil)
+		restaurantLogic = logics.InitRestaurantService(nil, nil)
 	}
 	controller := RestaurantController{restaurantLogic: restaurantLogic}
 

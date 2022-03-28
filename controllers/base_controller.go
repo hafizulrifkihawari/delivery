@@ -11,10 +11,6 @@ import (
 
 //endregion imports
 
-//region structs
-
-//endregion structs
-
 //region funtions
 
 func MapRequest(ctx *gin.Context, request *models.BaseRequest, keys []string) *models.BaseRequest {

@@ -14,6 +14,30 @@ type OpeningHour struct {
 	CloseAt string `json:"close_at"`
 }
 
+type Restaurant struct {
+	ID          uint    `json:"id"`
+	Name        string  `json:"name"`
+	CashBalance float64 `json:"cash_balance"`
+	Menu        []Menu
+}
+
+type RestaurantOpeningHour struct {
+	ID           uint       `json:"id"`
+	RestaurantID uint       `json:"restaurant_id"`
+	Restaurant   Restaurant `json:"restaurant"`
+	Day          string     `json:"day"`
+	OpenAt       string     `json:"open_at"`
+	CloseAt      string     `json:"close_at"`
+}
+
+type Menu struct {
+	ID           uint       `json:"id"`
+	RestaurantID uint       `json:"restaurant_id"`
+	Restaurant   Restaurant `json:"restaurant"`
+	DishName     string     `json:"dish_name"`
+	Price        float64    `json:"price"`
+}
+
 type RestaurantSeeder struct {
 	CashBalance    float64      `json:"cashBalance"`
 	Menu           []MenuSeeder `json:"menu"`
@@ -27,8 +51,9 @@ type MenuSeeder struct {
 }
 
 type FilterDate struct {
-	Day      string `json:"day"`
-	Datetime string `json:"datetime"`
+	Day          string `json:"day"`
+	Datetime     string `json:"datetime"`
+	RestaurantID uint   `json:"restaurant_id"`
 }
 
 type FilterText struct {

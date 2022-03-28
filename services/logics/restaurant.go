@@ -9,19 +9,24 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+
+	"gorm.io/gorm"
 )
 
 type IRestaurantService interface {
 	FetchRestaurants(filterType string, param map[string]string) (interface{}, error)
+	GetDishByID(id uint) (*models.Menu, error)
+	CheckRestaurantByOpeningHour(filterArgs *models.FilterDate) (*models.RestaurantOpeningHour, error)
+	UpdateRestaurantBalance(restaurantID uint, cashBalance float64) error
 }
 
 type RestaurantService struct {
 	restaurantRepository repositories.IRestaurantRepository
 }
 
-func InitRestaurantService(restaurantRepo repositories.IRestaurantRepository) *RestaurantService {
+func InitRestaurantService(restaurantRepo repositories.IRestaurantRepository, dbTrx *gorm.DB) *RestaurantService {
 	if utils.IsNil(restaurantRepo) {
-		restaurantRepo = repositories.InitRestaurantRepository(config.DBORM, config.DB)
+		restaurantRepo = repositories.InitRestaurantRepository(dbTrx, config.DB)
 	}
 
 	service := RestaurantService{
@@ -66,7 +71,7 @@ func (service *RestaurantService) ListRestaurantByFilterDatetime(param map[strin
 	}
 
 	for i := range res {
-		restaurant := &models.ListRestaurantResponse{}
+		restaurant := &models.ListRestaurantResponse{OpeningHour: &models.OpeningHour{}}
 		_ = utils.AutoMap(res[i].Restaurant, &restaurant)
 
 		restaurant.OpeningHour.Day = res[i].Day
@@ -134,4 +139,44 @@ func (service *RestaurantService) SearchRestaurant(param map[string]string) ([]*
 	_ = utils.AutoMap(res, &result)
 
 	return result, nil
+}
+
+func (service *RestaurantService) GetDishByID(id uint) (*models.Menu, error) {
+	var (
+		result *models.Menu = &models.Menu{}
+	)
+
+	res, err := service.restaurantRepository.GetMenuByID(id)
+	if err != nil {
+		go utils.PrintLog(err)
+		return nil, err
+	}
+
+	_ = utils.AutoMap(res, &result)
+
+	return result, nil
+}
+
+func (service *RestaurantService) CheckRestaurantByOpeningHour(filterArgs *models.FilterDate) (*models.RestaurantOpeningHour, error) {
+	var (
+		result *models.RestaurantOpeningHour = &models.RestaurantOpeningHour{}
+	)
+
+	res, err := service.restaurantRepository.CheckRestaurantByOpeningHour(filterArgs)
+	if err != nil {
+		go utils.PrintLog(err)
+		return nil, err
+	}
+	_ = utils.AutoMap(res, &result)
+
+	return result, nil
+}
+
+func (service *RestaurantService) UpdateRestaurantBalance(restaurantID uint, cashBalance float64) error {
+	err := service.restaurantRepository.UpdateRestaurantBalance(restaurantID, cashBalance)
+	if err != nil {
+		go utils.PrintLog(err)
+		return err
+	}
+	return nil
 }
