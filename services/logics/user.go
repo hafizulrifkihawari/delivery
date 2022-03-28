@@ -8,7 +8,6 @@ import (
 	"delivery/services/repositories"
 	"delivery/utils"
 	"errors"
-	"time"
 
 	"gorm.io/gorm"
 )
@@ -47,7 +46,7 @@ func InitUserService(userRepo repositories.IUserRepository, restaurantLogic IRes
 
 func (service *UserService) PurchaseDish(purchaseReq *models.UserPurchaseRequest) (*models.UserPurchaseResponse, error) {
 	var (
-		timeNow = constants.TimeNow.Add(9 * time.Hour)
+		timeNow = constants.TimeNow
 		weekday = timeNow.Weekday()
 		user    *models.User
 	)
@@ -84,7 +83,6 @@ func (service *UserService) PurchaseDish(purchaseReq *models.UserPurchaseRequest
 		return nil, errors.New(constants.ErrorInsufficientFund)
 	}
 
-	service.dbTrx.Begin()
 	resp, err := service.ProcessPurchasing(user, dish)
 	if err != nil {
 		service.dbTrx.Rollback()
