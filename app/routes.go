@@ -27,6 +27,6 @@ func deliveryRouter(c *controllerRoutes) {
 	auth := router.Use(gateway.ErrorHandler)
 	{
 		auth.GET("health-check", controllers.HealthCheck)
-		auth.GET("restaurant", c.restaurantController.ListRestaurant)
+		auth.GET("restaurant/:search_type", c.restaurantController.ListRestaurant)
 	}
 }

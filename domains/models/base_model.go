@@ -6,5 +6,5 @@ type BaseRequest struct {
 	Limit      int               `mapper:"limit"`
 	BodyData   interface{}       `mapper:"data"`
 	QueryParam map[string]string `mapper:"query_param"`
-	Param      uint              `mapper:"param"`
+	SearchType string            `mapper:"search_type"`
 }

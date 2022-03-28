@@ -24,9 +24,9 @@ func InitRestaurantController(restaurantLogic logics.IRestaurantService) *Restau
 
 func (h *RestaurantController) ListRestaurant(c *gin.Context) {
 	var (
-		request = MapRequest(c, &models.BaseRequest{}, []string{})
+		request = MapRequest(c, &models.BaseRequest{}, []string{"search_type"})
 	)
-	res, err := h.restaurantLogic.ListRestaurantByFilter(request.QueryParam)
+	res, err := h.restaurantLogic.FetchRestaurants(request.SearchType, request.QueryParam)
 	if err != nil {
 		response := response.Response{}
 		response.Error(c, err.Error())
