@@ -17,7 +17,7 @@ import (
 )
 
 // Migrate schema
-func CreateSchema() {
+func createSchema() {
 	err := config.DBORM.AutoMigrate(
 		&entities.Restaurant{},
 		&entities.Menu{},
@@ -30,7 +30,7 @@ func CreateSchema() {
 	}
 }
 
-func SeedData() {
+func seedData() {
 	// seeder validation restaurant
 	err := config.DBORM.First(&entities.Restaurant{}).Error
 	if err == gorm.ErrRecordNotFound {
@@ -184,7 +184,20 @@ func bulkInsertion(data interface{}) {
 	}
 }
 
+func createView() {
+	query := `CREATE OR REPLACE VIEW restaurant_search AS 
+		SELECT r.id, r.name AS restaurant_name, m.dish_name, (SELECT to_tsvector('simple', r.name||' '||m.dish_name)) AS search_text
+		FROM restaurant r
+		LEFT JOIN menu m ON m.restaurant_id = r.id;`
+	_, err := config.DB.Exec(query)
+	if err != nil {
+		utils.PrintLog(err)
+		panic(err)
+	}
+}
+
 func InitMigration() {
-	CreateSchema()
-	SeedData()
+	createSchema()
+	seedData()
+	createView()
 }

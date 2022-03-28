@@ -2,7 +2,9 @@ package utils
 
 import (
 	"delivery/constants"
+	"encoding/json"
 	"log"
+	"reflect"
 	"regexp"
 	"time"
 )
@@ -31,4 +33,32 @@ func ReplaceStringRegex(regex string, text string, replaceText string) string {
 		log.Fatal(err)
 	}
 	return reg.ReplaceAllString(text, replaceText)
+}
+
+func IsNil(val interface{}) bool {
+	if val == nil {
+		return true
+	}
+	switch reflect.TypeOf(val).Kind() {
+	case reflect.Ptr, reflect.Map, reflect.Array, reflect.Chan, reflect.Slice:
+		//use of IsNil method
+		return reflect.ValueOf(val).IsNil()
+	case reflect.Int, reflect.Float64, reflect.Uint, reflect.String:
+		return false
+	}
+	if reflect.ValueOf(val).Kind() != reflect.Ptr && reflect.ValueOf(val).Len() == 0 {
+		return true
+	}
+	return false
+}
+
+func AutoMap(from interface{}, to interface{}) error {
+	jsonFrom, _ := json.Marshal(from)
+	err := json.Unmarshal([]byte(string(jsonFrom)), to)
+	return err
+}
+
+func ConvertEpochToTime(epochTime int) *time.Time {
+	result := time.Unix(int64(epochTime), 0)
+	return &result
 }

@@ -13,3 +13,15 @@ const (
 	Alphanumeric      = "[^a-zA-Z0-9 ]+"
 	AlphanumericSpace = "[^a-zA-Z0-9 ]+"
 )
+
+var (
+	DayMapping = map[int]string{
+		0: "Sun",
+		1: "Mon",
+		2: "Tues",
+		3: "Weds",
+		4: "Thurs",
+		5: "Fri",
+		6: "Sat",
+	}
+)
