@@ -1,1 +1,1 @@
-web: bin/secret-ocean-69132
+web: bin/delivery
