@@ -4,15 +4,12 @@ import (
 	"delivery/app/config"
 	"delivery/migration"
 	"fmt"
-	"log"
 	"os"
-	"path/filepath"
 
 	"database/sql"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -40,15 +37,15 @@ func StartApp() {
 
 // setupConfig is used to load environment variable
 func setupConfig() {
-	dir, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-	environmentPath := filepath.Join(dir, ".env")
-	envVariable := godotenv.Load(environmentPath)
-	if envVariable != nil {
-		log.Fatal("Error loading .env file")
-	}
+	// dir, err := os.Getwd()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// environmentPath := filepath.Join(dir, ".env")
+	// envVariable := godotenv.Load(environmentPath)
+	// if envVariable != nil {
+	// 	log.Fatal("Error loading .env file")
+	// }
 
 	initConfig()
 }
