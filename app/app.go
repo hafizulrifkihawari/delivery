@@ -61,7 +61,7 @@ func initConfig() {
 	)
 
 	// setup connection DB
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable ", dbHost, dbUser, dbPassword, dbName, dbPort)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s", dbHost, dbUser, dbPassword, dbName, dbPort)
 	config.DB, err = sql.Open("postgres", dsn)
 	if err != nil {
 		panic(err.Error())
